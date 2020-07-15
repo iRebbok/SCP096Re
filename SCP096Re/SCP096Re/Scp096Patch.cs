@@ -1,5 +1,4 @@
-﻿using EXILED;
-using Harmony;
+﻿using Harmony;
 using Hints;
 using Mirror;
 using PlayableScps;
@@ -19,8 +18,8 @@ namespace SCP096Re
                 return false;
             }
             __instance.SetMovementSpeed(25f);
-            __instance._chargeTimeRemaining = Plugin.Config.GetFloat("096_charge_time", 0.8f);
-            __instance._chargeCooldown = Plugin.Config.GetFloat("096_charge_cooldown", 6f);
+            __instance._chargeTimeRemaining = SCP096Re.instance.Config.re096_charge_time;
+            __instance._chargeCooldown = SCP096Re.instance.Config.re096_charge_cooldown;
             __instance.PlayerState = Scp096PlayerState.Charging;
             __instance.Hub.fpc.NetworkmovementOverride = new Vector2(1f, 0f);
             return false;
@@ -32,7 +31,7 @@ namespace SCP096Re
     {
         public static bool Prefix(Scp096 __instance, ref float __result)
         {
-            __result = Plugin.Config.GetFloat("096_max_shield", 250f);
+            __result = SCP096Re.instance.Config.re096_max_shield;
             return false;
         }
     }
@@ -42,7 +41,7 @@ namespace SCP096Re
     {
         public static bool Prefix(Scp096 __instance, PlayerStats.HitInfo info)
         {
-            if (info.GetDamageType().isWeapon && Plugin.Config.GetBool("096_damage_add_target", true))
+            if (info.GetDamageType().isWeapon && SCP096Re.instance.Config.re096_damage_add_target)
             {
                 GameObject playerObject = info.GetPlayerObject();
                 if (playerObject != null && __instance.CanEnrage)
@@ -68,14 +67,14 @@ namespace SCP096Re
             }
             if (!__instance._targets.IsEmpty<ReferenceHub>())
             {
-                __instance.EnrageTimeLeft += Plugin.Config.GetFloat("096_target_enrage_add", 3f);
+                __instance.EnrageTimeLeft += SCP096Re.instance.Config.re096_target_enrage_add;
             }
-            hub.hints.Show(new TextHint(Plugin.Config.GetString("096_target_hint", "<i><color=red>Oh shit! I saw it's face!</color></i>"), new HintParameter[]
+            hub.hints.Show(new TextHint(SCP096Re.instance.Config.re096_target_hint, new HintParameter[]
                 {
                     new StringHintParameter("")
                 }, HintEffectPresets.FadeInAndOut(0.25f, 1f, 0f), 5f));
             __instance._targets.Add(hub);
-            __instance.AdjustShield(Plugin.Config.GetInt("096_shield_per_target", 250));
+            __instance.AdjustShield(SCP096Re.instance.Config.re096_shield_per_target);
             return false;
         }
     }
@@ -96,7 +95,7 @@ namespace SCP096Re
                 NetworkServer.SendToClientOfPlayer<Scp096HitmarkerMessage>(__instance.Hub.characterClassManager.netIdentity, new Scp096HitmarkerMessage(1.35f));
                 NetworkServer.SendToAll<Scp096OnKillMessage>(default(Scp096OnKillMessage), 0);
             }
-            if (flag && !Plugin.Config.GetBool("096_charge_targets_only", false))
+            if (flag && !SCP096Re.instance.Config.re096_charge_targets_only)
             {
                 //if (Plugin.Config.GetBool("096_charge_stop_by_player", false))
                 __instance.EndChargeNextFrame();
@@ -118,7 +117,7 @@ namespace SCP096Re
             __instance._attacking = true;
             __instance.PlayerState = Scp096PlayerState.Attacking;
             Transform playerCameraReference = __instance.Hub.PlayerCameraReference;
-            Collider[] array = Physics.OverlapSphere(playerCameraReference.position + playerCameraReference.forward * 1.25f, Plugin.Config.GetFloat("096_attack_radius", 1.75f), LayerMask.GetMask(new string[]
+            Collider[] array = Physics.OverlapSphere(playerCameraReference.position + playerCameraReference.forward * 1.25f, SCP096Re.instance.Config.re096_attack_radius, LayerMask.GetMask(new string[]
             {
                 "PlyCenter",
                 "Door",
@@ -155,7 +154,7 @@ namespace SCP096Re
                 })))
                     {
                         num = 1.2f;
-                        if ((__instance._targets.Contains(componentInParent3) && Plugin.Config.GetBool("096_hurt_targets_only", false)) || !Plugin.Config.GetBool("096_hurt_targets_only", false))
+                        if ((__instance._targets.Contains(componentInParent3) && SCP096Re.instance.Config.re096_hurt_targets_only) || !SCP096Re.instance.Config.re096_hurt_targets_only)
                         {
                             if (__instance.Hub.playerStats.HurtPlayer(new PlayerStats.HitInfo(9696f, __instance.Hub.LoggedNameFromRefHub(), DamageTypes.Scp096, componentInParent3.queryProcessor.PlayerId), componentInParent3.gameObject))
                             {
@@ -183,7 +182,7 @@ namespace SCP096Re
         public static bool Prefix(Scp096 __instance)
         {
             __instance.PlayerState = Scp096PlayerState.Enraged;
-            __instance._attackCooldown = Plugin.Config.GetFloat("096_attack_cooldown", 0.1f);
+            __instance._attackCooldown = SCP096Re.instance.Config.re096_attack_cooldown;
             __instance._attacking = false;
             return false;
         }
@@ -199,7 +198,7 @@ namespace SCP096Re
             __instance.SetJumpHeight(4f);
             __instance.ResetShield();
             __instance.PlayerState = Scp096PlayerState.Calming;
-            __instance._calmingTime = Plugin.Config.GetFloat("096_calm_time", 6f);
+            __instance._calmingTime = SCP096Re.instance.Config.re096_calm_time;
             __instance._targets.Clear();
             return false;
         }
@@ -217,7 +216,7 @@ namespace SCP096Re
             __instance.SetMovementSpeed(0f);
             __instance.SetJumpHeight(4f);
             __instance.PlayerState = Scp096PlayerState.Enraging;
-            __instance._enrageWindupRemaining = Plugin.Config.GetFloat("096_enrage_windup_time", 6f);
+            __instance._enrageWindupRemaining = SCP096Re.instance.Config.re096_enrage_windup_time;
             return false;
         }
     }

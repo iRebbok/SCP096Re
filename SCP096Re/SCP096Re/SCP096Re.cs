@@ -1,4 +1,7 @@
-﻿using EXILED;
+﻿using Exiled.API;
+using Exiled.API.Features;
+using Exiled.Events;
+using Exiled;
 using Harmony;
 using PlayableScps;
 using System;
@@ -6,46 +9,47 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Exiled.Events.EventArgs;
 
 namespace SCP096Re
 {
-    public class SCP096Re : Plugin
+    public class SCP096Re : Plugin<Config>
     {
-        public override string getName => "SCP096Re";
+        public override string Name => "SCP096Re";
         public HarmonyInstance hinst;
+        public static SCP096Re instance;
 
-        public override void OnDisable()
+        public override void OnDisabled()
         {
+            base.OnDisabled();
             hinst.UnpatchAll();
-            Events.Scp096EnrageEvent -= Events_Scp096EnrageEvent;
+            Exiled.Events.Handlers.Scp096.Enraging -= Events_Scp096EnrageEvent;
+            instance = null;
             Log.Info("SCP-096 Unpatched.");
         }
 
-        public override void OnEnable()
+        public override void OnEnabled()
         {
+            base.OnEnabled();
             hinst = HarmonyInstance.Create("scp096re");
             hinst.PatchAll();
-            Events.Scp096EnrageEvent += Events_Scp096EnrageEvent;
+            Exiled.Events.Handlers.Scp096.Enraging += Events_Scp096EnrageEvent;
+            instance = this;
             Log.Info("SCP-096 Patched.");
         }
 
-        private void Events_Scp096EnrageEvent(ref Scp096EnrageEvent ev)
+        private void Events_Scp096EnrageEvent(EnragingEventArgs ev)
         {
-            ev.Allow = false;
-            if (ev.Script.Enraged)
+            ev.IsAllowed = false;
+            if (ev.Scp096.Enraged)
             {
-                ev.Script.AddReset();
+                ev.Scp096.AddReset();
                 return;
             }
-            ev.Script.SetMovementSpeed(12f);
-            ev.Script.SetJumpHeight(10f);
-            ev.Script.PlayerState = Scp096PlayerState.Enraged;
-            ev.Script.EnrageTimeLeft = Plugin.Config.GetFloat("096_enrage_time", 15f);
-        }
-
-        public override void OnReload()
-        {
-
+            ev.Scp096.SetMovementSpeed(12f);
+            ev.Scp096.SetJumpHeight(10f);
+            ev.Scp096.PlayerState = Scp096PlayerState.Enraged;
+            ev.Scp096.EnrageTimeLeft = Config.re096_enrage_time;
         }
     }
 }
