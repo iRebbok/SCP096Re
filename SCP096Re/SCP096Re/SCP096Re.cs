@@ -2,7 +2,7 @@
 using Exiled.API.Features;
 using Exiled.Events;
 using Exiled;
-using Harmony;
+using HarmonyLib;
 using PlayableScps;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace SCP096Re
     public class SCP096Re : Plugin<Config>
     {
         public override string Name => "SCP096Re";
-        public HarmonyInstance hinst;
+        public Harmony hinst;
         public static SCP096Re instance;
 
         public override void OnDisabled()
@@ -31,7 +31,7 @@ namespace SCP096Re
         public override void OnEnabled()
         {
             base.OnEnabled();
-            hinst = HarmonyInstance.Create("scp096re");
+            hinst = new Harmony("scp096re");
             hinst.PatchAll();
             Exiled.Events.Handlers.Scp096.Enraging += Events_Scp096EnrageEvent;
             instance = this;
