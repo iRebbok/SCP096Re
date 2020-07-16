@@ -16,6 +16,8 @@ namespace SCP096Re
     public class SCP096Re : Plugin<Config>
     {
         public override string Name => "SCP096Re";
+        public override string Author => "VirtualBrightPlayz";
+        public override Version Version => new Version(1, 0, 0);
         public Harmony hinst;
         public static SCP096Re instance;
 
