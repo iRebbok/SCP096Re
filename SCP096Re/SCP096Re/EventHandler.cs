@@ -47,7 +47,6 @@ namespace SCP096Re
             ev.Scp096.PlayerState = Scp096PlayerState.Calming;
             ev.Scp096._calmingTime = SCP096Re.Instance.Config.re096_calm_time; // Scp096Re
             ev.Scp096._targets.Clear();
-
         }
     }
 }
