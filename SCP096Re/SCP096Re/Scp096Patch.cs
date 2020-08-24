@@ -54,26 +54,6 @@ namespace SCP096Re
         }
     }
 
-    [HarmonyPatch(typeof(Scp096), nameof(Scp096.AddTarget))]
-    public static class Scp096PatchAddTarget
-    {
-        public static bool Prefix(Scp096 __instance, GameObject target)
-        {
-            ReferenceHub hub = ReferenceHub.GetHub(target);
-            if (!__instance.CanReceiveTargets || hub == null || __instance._targets.Contains(hub))
-                return false;
-
-            if (!__instance._targets.IsEmpty<ReferenceHub>())
-            {
-                __instance.EnrageTimeLeft += SCP096Re.Instance.Config.re096_target_enrage_add;
-            }
-
-            __instance._targets.Add(hub);
-            __instance.AdjustShield(SCP096Re.Instance.Config.re096_shield_per_target);
-            return false;
-        }
-    }
-
     [HarmonyPatch(typeof(Scp096), nameof(Scp096.ChargePlayer))]
     public static class Scp096PatchChargePlayer
     {
@@ -177,22 +157,6 @@ namespace SCP096Re
             __instance.PlayerState = Scp096PlayerState.Enraged;
             __instance._attackCooldown = SCP096Re.Instance.Config.re096_attack_cooldown;
             __instance._attacking = false;
-            return false;
-        }
-    }
-
-    [HarmonyPatch(typeof(Scp096), nameof(Scp096.EndEnrage))]
-    public static class Scp096PatchEndEnrage
-    {
-        public static bool Prefix(Scp096 __instance)
-        {
-            __instance.EndCharge();
-            __instance.SetMovementSpeed(0f);
-            __instance.SetJumpHeight(4f);
-            __instance.ResetShield();
-            __instance.PlayerState = Scp096PlayerState.Calming;
-            __instance._calmingTime = SCP096Re.Instance.Config.re096_calm_time;
-            __instance._targets.Clear();
             return false;
         }
     }

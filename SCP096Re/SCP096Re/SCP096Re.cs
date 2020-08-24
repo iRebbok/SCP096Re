@@ -1,6 +1,8 @@
 using Exiled.API.Features;
 using HarmonyLib;
 
+using Scp096Events = Exiled.Events.Handlers.Scp096;
+
 namespace SCP096Re
 {
     public sealed class SCP096Re : Plugin<Scp096ReConfig>
@@ -20,8 +22,9 @@ namespace SCP096Re
 
             HarmonyInstance.UnpatchAll();
 
-            Exiled.Events.Handlers.Scp096.AddingTarget -= Handler.AddTargetToScp096;
-            Exiled.Events.Handlers.Scp096.Enraging -= Handler.EnrageScp096;
+            Scp096Events.AddingTarget -= Handler.AddTargetToScp096;
+            Scp096Events.Enraging -= Handler.EnrageScp096;
+            Scp096Events.CalmingDown -= Handler.OnScp096CalmingDown;
 
             Log.Info("SCP-096 Unpatched.");
         }
@@ -32,8 +35,9 @@ namespace SCP096Re
 
             HarmonyInstance.PatchAll();
 
-            Exiled.Events.Handlers.Scp096.Enraging += Handler.EnrageScp096;
-            Exiled.Events.Handlers.Scp096.AddingTarget += Handler.AddTargetToScp096;
+            Scp096Events.Enraging += Handler.EnrageScp096;
+            Scp096Events.AddingTarget += Handler.AddTargetToScp096;
+            Scp096Events.CalmingDown += Handler.OnScp096CalmingDown;
 
             Log.Info("SCP-096 Patched.");
         }
