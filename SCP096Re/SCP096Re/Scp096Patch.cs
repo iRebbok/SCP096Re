@@ -1,3 +1,4 @@
+using Exiled.API.Features;
 using HarmonyLib;
 using Mirror;
 using NorthwoodLib.Pools;
@@ -5,6 +6,8 @@ using PlayableScps;
 using PlayableScps.Messages;
 using System.Collections.Generic;
 using UnityEngine;
+
+using Scp096 = PlayableScps.Scp096;
 
 namespace SCP096Re
 {
@@ -123,9 +126,10 @@ namespace SCP096Re
                         num = 1.2f;
                         //>Scp096Re
                         if (
-                            (__instance._targets.Contains(componentInParent3) && SCP096Re.Instance.Config.re096_hurt_targets_only)
-                            ||
-                            !SCP096Re.Instance.Config.re096_hurt_targets_only
+                            ((__instance._targets.Contains(componentInParent3) && SCP096Re.Instance.Config.re096_hurt_targets_only)
+                                ||
+                                !SCP096Re.Instance.Config.re096_hurt_targets_only)
+                            && !SCP096Re.IsBlockedPlayer(Player.Get(componentInParent3))
                             )
                         //<Scp096Re
                         {
@@ -173,6 +177,32 @@ namespace SCP096Re
             __instance.SetJumpHeight(4f);
             __instance.PlayerState = Scp096PlayerState.Enraging;
             __instance._enrageWindupRemaining = SCP096Re.Instance.Config.re096_enrage_windup_time;
+            return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(Scp096), nameof(Scp096.ParseVisionInformation))]
+    public static class Scp096PatchParseVisionInformation
+    {
+        public static bool Prefix(Scp096 __instance, VisionInformation info)
+        {
+            if (info.Looking && info.RaycastHit && info.RaycastResult.transform.gameObject.TryGetComponent(out PlayableScpsController component) && component.CurrentScp != null && component.CurrentScp == __instance)
+            {
+                // serpentshand & scp035 compatibility
+                if (SCP096Re.IsBlockedPlayer(Player.Get(info.Source)))
+                    return false;
+
+                float delay = (1f - info.DotProduct) / 0.25f * (Vector3.Distance(info.Source.transform.position, info.Target.transform.position) * 0.1f);
+                if (!__instance.Calming)
+                {
+                    __instance.AddTarget(info.Source);
+                }
+                if (__instance.CanEnrage && info.Source != null)
+                {
+                    __instance.PreWindup(delay);
+                }
+            }
+
             return false;
         }
     }

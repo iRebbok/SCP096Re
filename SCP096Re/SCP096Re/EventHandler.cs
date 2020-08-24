@@ -12,12 +12,6 @@ namespace SCP096Re
             if (!ev.IsAllowed)
                 return;
 
-            if (SCP096Re.IsBlockedPlayer(ev.Target))
-            {
-                ev.IsAllowed = false;
-                return;
-            }
-
             ev.EnrageTimeToAdd = SCP096Re.Instance.Config.re096_target_enrage_add;
             ev.AhpToAdd = SCP096Re.Instance.Config.re096_shield_per_target;
 
