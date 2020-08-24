@@ -1,15 +1,11 @@
-﻿using Exiled.API.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Exiled.API.Interfaces;
 
 namespace SCP096Re
 {
-    public class Config : IConfig
+    public sealed class Scp096ReConfig : IConfig
     {
         public bool IsEnabled { get; set; } = true;
+
         public float re096_enrage_time { get; set; } = 15f;
         public bool re096_damage_add_target { get; set; } = true;
         public float re096_max_shield { get; set; } = 250f;

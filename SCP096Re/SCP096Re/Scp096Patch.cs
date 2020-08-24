@@ -1,6 +1,6 @@
 using HarmonyLib;
-using Hints;
 using Mirror;
+using NorthwoodLib.Pools;
 using PlayableScps;
 using PlayableScps.Messages;
 using System.Collections.Generic;
@@ -9,14 +9,13 @@ using UnityEngine;
 namespace SCP096Re
 {
     [HarmonyPatch(typeof(Scp096), nameof(Scp096.Charge))]
-    public class Scp096PatchCharge
+    public static class Scp096PatchCharge
     {
         public static bool Prefix(Scp096 __instance)
         {
             if (!__instance.CanCharge)
-            {
                 return false;
-            }
+
             __instance.SetMovementSpeed(25f);
             __instance._chargeTimeRemaining = SCP096Re.Instance.Config.re096_charge_time;
             __instance._chargeCooldown = SCP096Re.Instance.Config.re096_charge_cooldown;
@@ -26,8 +25,8 @@ namespace SCP096Re
         }
     }
 
-    [HarmonyPatch(typeof(Scp096), "get_MaxShield")]
-    public class Scp096MaxShieldPatch
+    [HarmonyPatch(typeof(Scp096), nameof(Scp096.MaxShield), MethodType.Getter)]
+    public static class Scp096MaxShieldPatch
     {
         public static bool Prefix(Scp096 __instance, ref float __result)
         {
@@ -37,7 +36,7 @@ namespace SCP096Re
     }
 
     [HarmonyPatch(typeof(Scp096), nameof(Scp096.OnDamage))]
-    public class Scp096PatchOnDamage
+    public static class Scp096PatchOnDamage
     {
         public static bool Prefix(Scp096 __instance, PlayerStats.HitInfo info)
         {
@@ -47,7 +46,7 @@ namespace SCP096Re
                 if (playerObject != null && __instance.CanEnrage)
                 {
                     __instance.AddTarget(playerObject);
-                    __instance.Windup(false);
+                    __instance.Windup();
                 }
             }
             __instance.TimeUntilShieldRecharge = 10f;
@@ -56,19 +55,19 @@ namespace SCP096Re
     }
 
     [HarmonyPatch(typeof(Scp096), nameof(Scp096.AddTarget))]
-    public class Scp096PatchAddTarget
+    public static class Scp096PatchAddTarget
     {
         public static bool Prefix(Scp096 __instance, GameObject target)
         {
             ReferenceHub hub = ReferenceHub.GetHub(target);
             if (!__instance.CanReceiveTargets || hub == null || __instance._targets.Contains(hub))
-            {
                 return false;
-            }
+
             if (!__instance._targets.IsEmpty<ReferenceHub>())
             {
                 __instance.EnrageTimeLeft += SCP096Re.Instance.Config.re096_target_enrage_add;
             }
+
             __instance._targets.Add(hub);
             __instance.AdjustShield(SCP096Re.Instance.Config.re096_shield_per_target);
             return false;
@@ -76,23 +75,16 @@ namespace SCP096Re
     }
 
     [HarmonyPatch(typeof(Scp096), nameof(Scp096.ChargePlayer))]
-    public class Scp096PatchChargePlayer
+    public static class Scp096PatchChargePlayer
     {
         public static bool Prefix(Scp096 __instance, ReferenceHub player)
         {
             if (player.characterClassManager.IsAnyScp())
-            {
                 return false;
-            }
-            if (Physics.Linecast(__instance.Hub.transform.position, player.transform.position, LayerMask.GetMask(new string[]
-            {
-                "Default",
-                "Door",
-                "Glass"
-            })))
-            {
-                return false; 
-            }
+
+            if (Physics.Linecast(__instance.Hub.transform.position, player.transform.position, LayerMask.GetMask("Default", "Door", "Glass")))
+                return false;
+
             bool flag = __instance._targets.Contains(player);
             if (__instance.Hub.playerStats.HurtPlayer(new PlayerStats.HitInfo(flag ? 9696f : 35f, player.LoggedNameFromRefHub(), DamageTypes.Scp096, __instance.Hub.queryProcessor.PlayerId), player.gameObject, false))
             {
@@ -109,25 +101,20 @@ namespace SCP096Re
     }
 
     [HarmonyPatch(typeof(Scp096), nameof(Scp096.Attack))]
-    public class Scp096PatchAttack
+    public static class Scp096PatchAttack
     {
         public static bool Prefix(Scp096 __instance)
         {
             if (!__instance.CanAttack)
-            {
                 return false;
-            }
+
             __instance._leftAttack = !__instance._leftAttack;
             __instance._attacking = true;
             __instance.PlayerState = Scp096PlayerState.Attacking;
             Transform playerCameraReference = __instance.Hub.PlayerCameraReference;
-            Collider[] array = Physics.OverlapSphere(playerCameraReference.position + playerCameraReference.forward * 1.25f, SCP096Re.Instance.Config.re096_attack_radius, LayerMask.GetMask(new string[]
-            {
-                "PlyCenter",
-                "Door",
-                "Glass"
-            }));
-            HashSet<GameObject> hashSet = new HashSet<GameObject>();
+            Collider[] array = Physics.OverlapSphere(playerCameraReference.position + (playerCameraReference.forward * 1.25f), SCP096Re.Instance.Config.re096_attack_radius, LayerMask.GetMask("PlyCenter", "Door", "Glass"));
+
+            HashSet<GameObject> hashSet = HashSetPool<GameObject>.Shared.Rent(); /* new HashSet<GameObject>(); */
             float num = 0f;
             foreach (Collider collider in array)
             {
@@ -149,22 +136,24 @@ namespace SCP096Re
                         num = 0.5f;
                         break;
                     }
+
                     ReferenceHub componentInParent3 = collider.GetComponentInParent<ReferenceHub>();
-                    if (!(componentInParent3 == null) && !(componentInParent3 == __instance.Hub) && hashSet.Add(componentInParent3.gameObject) && !Physics.Linecast(__instance.Hub.transform.position, componentInParent3.transform.position, LayerMask.GetMask(new string[]
-                    {
-                        "Default",
-                        "Door",
-                        "Glass"
-                    })))
+                    if (!(componentInParent3 == null) && !(componentInParent3 == __instance.Hub) && hashSet.Add(componentInParent3.gameObject) && !Physics.Linecast(__instance.Hub.transform.position, componentInParent3.transform.position, LayerMask.GetMask("Default", "Door", "Glass")))
                     {
                         num = 1.2f;
-                        if ((__instance._targets.Contains(componentInParent3) && SCP096Re.Instance.Config.re096_hurt_targets_only) || !SCP096Re.Instance.Config.re096_hurt_targets_only)
+                        //>Scp096Re
+                        if (
+                            (__instance._targets.Contains(componentInParent3) && SCP096Re.Instance.Config.re096_hurt_targets_only)
+                            ||
+                            !SCP096Re.Instance.Config.re096_hurt_targets_only
+                            )
+                        //<Scp096Re
                         {
                             if (__instance.Hub.playerStats.HurtPlayer(new PlayerStats.HitInfo(9696f, __instance.Hub.LoggedNameFromRefHub(), DamageTypes.Scp096, componentInParent3.queryProcessor.PlayerId), componentInParent3.gameObject))
                             {
                                 num = 1.35f;
                                 __instance._targets.Remove(componentInParent3);
-                                NetworkServer.SendToAll<Scp096OnKillMessage>(default(Scp096OnKillMessage), 0);
+                                NetworkServer.SendToAll<Scp096OnKillMessage>(default(Scp096OnKillMessage));
                             }
                         }
                     }
@@ -181,7 +170,7 @@ namespace SCP096Re
 
 
     [HarmonyPatch(typeof(Scp096), nameof(Scp096.EndAttack))]
-    public class Scp096PatchEndAttack
+    public static class Scp096PatchEndAttack
     {
         public static bool Prefix(Scp096 __instance)
         {
@@ -193,7 +182,7 @@ namespace SCP096Re
     }
 
     [HarmonyPatch(typeof(Scp096), nameof(Scp096.EndEnrage))]
-    public class Scp096PatchEndEnrage
+    public static class Scp096PatchEndEnrage
     {
         public static bool Prefix(Scp096 __instance)
         {
@@ -209,14 +198,13 @@ namespace SCP096Re
     }
 
     [HarmonyPatch(typeof(Scp096), nameof(Scp096.Windup))]
-    public class Scp096PatchWindup
+    public static class Scp096PatchWindup
     {
         public static bool Prefix(Scp096 __instance, bool force)
         {
             if (!force && (__instance.IsPreWindup || !__instance.CanEnrage))
-            {
                 return false;
-            }
+
             Scp096.takenDoors.Remove(__instance.Hub.gameObject);
             __instance.SetMovementSpeed(0f);
             __instance.SetJumpHeight(4f);

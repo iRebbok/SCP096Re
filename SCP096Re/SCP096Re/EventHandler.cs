@@ -1,10 +1,10 @@
-﻿using Exiled.Events.EventArgs;
+using Exiled.Events.EventArgs;
 using Hints;
 using PlayableScps;
 
 namespace SCP096Re
 {
-    public class EventHandler
+    public sealed class EventHandler
     {
         public void AddTargetToScp096(AddingTargetEventArgs ev)
         {
@@ -17,11 +17,13 @@ namespace SCP096Re
         public void EnrageScp096(EnragingEventArgs ev)
         {
             ev.IsAllowed = false;
+
             if (ev.Scp096.Enraged)
             {
                 ev.Scp096.AddReset();
                 return;
             }
+
             ev.Scp096.SetMovementSpeed(12f);
             ev.Scp096.SetJumpHeight(10f);
             ev.Scp096.PlayerState = Scp096PlayerState.Enraged;

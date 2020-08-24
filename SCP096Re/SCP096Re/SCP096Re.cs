@@ -1,44 +1,40 @@
-﻿using Exiled.API;
 using Exiled.API.Features;
-using Exiled.Events;
-using Exiled;
 using HarmonyLib;
-using PlayableScps;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Exiled.Events.EventArgs;
 
 namespace SCP096Re
 {
-    public class SCP096Re : Plugin<Config>
+    public sealed class SCP096Re : Plugin<Scp096ReConfig>
     {
-        public override string Name => "SCP096Re";
         public override string Author => "VirtualBrightPlayz";
-        public Harmony HarmonyInstance;
-        public EventHandler Handler;
-        public static SCP096Re Instance;
+
+        public static SCP096Re Instance { get; } = new SCP096Re();
+
+        public readonly Harmony HarmonyInstance = new Harmony($"VirtualBrightPlayz.{nameof(SCP096Re)}");
+        public readonly EventHandler Handler = new EventHandler();
+
+        private SCP096Re() { }
 
         public override void OnDisabled()
         {
+            base.OnDisabled();
+
             HarmonyInstance.UnpatchAll();
+
             Exiled.Events.Handlers.Scp096.AddingTarget -= Handler.AddTargetToScp096;
             Exiled.Events.Handlers.Scp096.Enraging -= Handler.EnrageScp096;
-            Handler = null;
-            Instance = null;
+
             Log.Info("SCP-096 Unpatched.");
         }
 
         public override void OnEnabled()
         {
-            HarmonyInstance = new Harmony("scp096re");
+            base.OnEnabled();
+
             HarmonyInstance.PatchAll();
-            Instance = this;
-            Handler = new EventHandler();
+
             Exiled.Events.Handlers.Scp096.Enraging += Handler.EnrageScp096;
             Exiled.Events.Handlers.Scp096.AddingTarget += Handler.AddTargetToScp096;
+
             Log.Info("SCP-096 Patched.");
         }
     }
