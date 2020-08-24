@@ -51,9 +51,14 @@ namespace SCP096Re
             ev.Scp096._targets.Clear();
         }
 
+        bool patched = false;
         public void OnWaitingForPlayers()
         {
+            if (patched)
+                return;
+
             SCP096Re.Instance.HarmonyInstance.Unpatch(AccessTools.Method(typeof(PlayableScps.Scp096), nameof(PlayableScps.Scp096.ParseVisionInformation)), HarmonyPatchType.Prefix, "cyanox.serpentshand");
+            patched = true;
         }
     }
 }

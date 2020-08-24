@@ -189,9 +189,16 @@ namespace SCP096Re
         {
             if (info.Looking && info.RaycastHit && info.RaycastResult.transform.gameObject.TryGetComponent(out PlayableScpsController component) && component.CurrentScp != null && component.CurrentScp == __instance)
             {
-                // serpentshand & scp035 compatibility
-                if (SCP096Re.IsBlockedPlayer(Player.Get(info.Source)))
+                //>Scp096Re
+                var player = Player.Get(info.Source);
+
+                // scp035 compatibility
+                if (SCP096Re.IsBlockedPlayer(player))
                     return false;
+
+                if (SerpentsHand.EventHandlers.shPlayers.Contains(player.Id) && SerpentsHand.SerpentsHand.instance?.Config.CanTrigger096 == false)
+                    return false;
+                //<Scp096Re
 
                 float delay = (1f - info.DotProduct) / 0.25f * (Vector3.Distance(info.Source.transform.position, info.Target.transform.position) * 0.1f);
                 if (!__instance.Calming)

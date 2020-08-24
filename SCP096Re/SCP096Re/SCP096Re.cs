@@ -52,15 +52,6 @@ namespace SCP096Re
             if (player.RankColor == "red" && player.RankName == "SCP-035")
                 return true;
 
-            // SerpentsHand plugin compatible
-            var shEh = System.Type.GetType("SerpentsHand.EventHandlers");
-            if (shEh != null)
-            {
-                var shPlayers = shEh.GetField("shPlayers", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-                var playersList = shPlayers.GetValue(null) as List<int>;
-                return playersList.Contains(player.Id);
-            }
-
             return false;
         }
     }
