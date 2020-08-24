@@ -1,8 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName>SCP096Re</AssemblyName>
     <Version>1.1.0</Version>
+    <Authors>VirtualBrightPlayz ＆ iRebbok</Authors>
   </PropertyGroup>
 
 </Project>
