@@ -182,6 +182,7 @@ namespace SCP096Re
     }
 
     [HarmonyPatch(typeof(Scp096), nameof(Scp096.ParseVisionInformation))]
+    [HarmonyPriority(Priority.HigherThanNormal)]
     public static class Scp096PatchParseVisionInformation
     {
         public static bool Prefix(Scp096 __instance, VisionInformation info)
