@@ -126,10 +126,8 @@ namespace SCP096Re
                         num = 1.2f;
                         //>Scp096Re
                         if (
-                            ((__instance._targets.Contains(componentInParent3) && SCP096Re.Instance.Config.re096_hurt_targets_only)
-                                ||
-                                !SCP096Re.Instance.Config.re096_hurt_targets_only)
-                            && !SCP096Re.IsBlockedPlayer(Player.Get(componentInParent3))
+                            (__instance._targets.Contains(componentInParent3) && SCP096Re.Instance.Config.re096_hurt_targets_only)
+                            || !SCP096Re.Instance.Config.re096_hurt_targets_only
                             )
                         //<Scp096Re
                         {
