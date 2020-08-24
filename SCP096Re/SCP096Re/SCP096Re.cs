@@ -3,6 +3,7 @@ using HarmonyLib;
 using System.Collections.Generic;
 
 using Scp096Events = Exiled.Events.Handlers.Scp096;
+using ServerEvents = Exiled.Events.Handlers.Server;
 
 namespace SCP096Re
 {
@@ -25,6 +26,8 @@ namespace SCP096Re
             Scp096Events.Enraging -= Handler.EnrageScp096;
             Scp096Events.CalmingDown -= Handler.OnScp096CalmingDown;
 
+            ServerEvents.WaitingForPlayers -= Handler.OnWaitingForPlayers;
+
             Log.Info("SCP-096 Unpatched.");
         }
 
@@ -37,6 +40,8 @@ namespace SCP096Re
             Scp096Events.Enraging += Handler.EnrageScp096;
             Scp096Events.AddingTarget += Handler.AddTargetToScp096;
             Scp096Events.CalmingDown += Handler.OnScp096CalmingDown;
+
+            ServerEvents.WaitingForPlayers += Handler.OnWaitingForPlayers;
 
             Log.Info("SCP-096 Patched.");
         }

@@ -1,4 +1,5 @@
 using Exiled.Events.EventArgs;
+using HarmonyLib;
 using Hints;
 using PlayableScps;
 
@@ -48,6 +49,11 @@ namespace SCP096Re
             ev.Scp096.PlayerState = Scp096PlayerState.Calming;
             ev.Scp096._calmingTime = SCP096Re.Instance.Config.re096_calm_time; // Scp096Re
             ev.Scp096._targets.Clear();
+        }
+
+        public void OnWaitingForPlayers()
+        {
+            SCP096Re.Instance.HarmonyInstance.Unpatch(AccessTools.Method(typeof(PlayableScps.Scp096), nameof(PlayableScps.Scp096.ParseVisionInformation)), HarmonyPatchType.Prefix, "cyanox.serpentshand");
         }
     }
 }
