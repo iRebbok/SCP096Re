@@ -68,7 +68,11 @@ namespace SCP096Re
             if (Physics.Linecast(__instance.Hub.transform.position, player.transform.position, LayerMask.GetMask("Default", "Door", "Glass")))
                 return false;
 
+            if (SCP096Re.IsBlockedPlayer(Player.Get(player)) || SerpentsHand.EventHandlers.shPlayers.Contains(player.playerId))
+                return false;
+
             bool flag = __instance._targets.Contains(player);
+
             if (__instance.Hub.playerStats.HurtPlayer(new PlayerStats.HitInfo(flag ? 9696f : 35f, player.LoggedNameFromRefHub(), DamageTypes.Scp096, __instance.Hub.queryProcessor.PlayerId), player.gameObject, false))
             {
                 __instance._targets.Remove(player);
