@@ -73,13 +73,16 @@ namespace SCP096Re
 
             bool flag = __instance._targets.Contains(player);
 
+            if (!flag && SCP096Re.Instance.Config.re096_charge_targets_only)
+                return false;
+
             if (__instance.Hub.playerStats.HurtPlayer(new PlayerStats.HitInfo(flag ? 9696f : 35f, player.LoggedNameFromRefHub(), DamageTypes.Scp096, __instance.Hub.queryProcessor.PlayerId), player.gameObject, false))
             {
                 __instance._targets.Remove(player);
                 NetworkServer.SendToClientOfPlayer<Scp096HitmarkerMessage>(__instance.Hub.characterClassManager.netIdentity, new Scp096HitmarkerMessage(1.35f));
                 NetworkServer.SendToAll<Scp096OnKillMessage>(default(Scp096OnKillMessage), 0);
             }
-            if (flag && !SCP096Re.Instance.Config.re096_charge_targets_only)
+            if (flag)
             {
                 __instance.EndChargeNextFrame();
             }
