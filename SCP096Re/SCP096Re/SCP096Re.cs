@@ -1,5 +1,6 @@
 using Exiled.API.Features;
 using HarmonyLib;
+using System.Collections.Generic;
 
 using Scp096Events = Exiled.Events.Handlers.Scp096;
 
@@ -40,6 +41,24 @@ namespace SCP096Re
             Scp096Events.CalmingDown += Handler.OnScp096CalmingDown;
 
             Log.Info("SCP-096 Patched.");
+        }
+
+        public static bool IsBlockedPlayer(Player player)
+        {
+            // SCP-035 plugin compatible
+            if (player.RankColor == "red" && player.RankName == "SCP-035")
+                return true;
+
+            // SerpentsHand plugin compatible
+            var shEh = System.Type.GetType("SerpentsHand.EventHandlers");
+            if (shEh != null)
+            {
+                var shPlayers = shEh.GetField("shPlayers", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+                var playersList = shPlayers.GetValue(null) as List<int>;
+                return playersList.Contains(player.Id);
+            }
+
+            return false;
         }
     }
 }

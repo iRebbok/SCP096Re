@@ -148,7 +148,6 @@ namespace SCP096Re
         }
     }
 
-
     [HarmonyPatch(typeof(Scp096), nameof(Scp096.EndAttack))]
     public static class Scp096PatchEndAttack
     {
