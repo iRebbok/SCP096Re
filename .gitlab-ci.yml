@@ -8,8 +8,8 @@ job:powershell-build:
   before_script:
     - CHCP 65001
   script:
-    - dotnet restore -p:Configuration=Release
-    - dotnet build -p:Configuration=Release -p:DeployToServer=false -maxCpuCount:8
+    - dotnet restore SCP096Re -p:Configuration=Release
+    - dotnet build SCP096Re -p:Configuration=Release -p:DeployToServer=false -maxCpuCount:8
   tags:
     - dotnet
   artifacts:
