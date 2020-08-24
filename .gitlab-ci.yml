@@ -1,0 +1,19 @@
+stages:
+  - build
+
+job:powershell-build:
+  stage: build
+  variables:
+    EXILED_REFERENCES: "E:\\SteamLibrary\\steamapps\\common\\SCP Secret Laboratory Dedicated Server\\SCPSL_Data\\Managed"
+  before_script:
+    - CHCP 65001
+  script:
+    - dotnet restore -p:Configuration=Release
+    - dotnet build -p:Configuration=Release -p:DeployToServer=false -maxCpuCount:8
+  tags:
+    - dotnet
+  artifacts:
+    name: Build-Release-$CI_COMMIT_SHORT_SHA
+    expire_in: 2 weeks
+    paths:
+      - bin/*
