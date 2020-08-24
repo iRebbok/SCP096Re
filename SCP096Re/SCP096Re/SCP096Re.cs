@@ -7,8 +7,6 @@ namespace SCP096Re
 {
     public sealed class SCP096Re : Plugin<Scp096ReConfig>
     {
-        public override string Author => "VirtualBrightPlayz";
-
         public static SCP096Re Instance { get; } = new SCP096Re();
 
         public readonly Harmony HarmonyInstance = new Harmony($"VirtualBrightPlayz.{nameof(SCP096Re)}");
